@@ -10,8 +10,10 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
   <run_depend>roscpp</run_depend>
-  <build_depend>urdf</build_depend>
-  <run_depend>urdf</run_depend>
+  <build_depend>liburdfdom-dev</build_depend>
+  <run_depend>liburdfdom-dev</run_depend>
+  <build_depend>liburdfdom-headers-dev</build_depend>
+  <run_depend>liburdfdom-headers-dev</run_depend>
   <build_depend>tf</build_depend>
   <run_depend>tf</run_depend>
   <build_depend>resource_retriever</build_depend>

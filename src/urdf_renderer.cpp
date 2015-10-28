@@ -36,6 +36,7 @@
 #undef Success  // <---- Screw Xlib for this
 
 #include <ros/node_handle.h>
+#include <urdf_parser/urdf_parser.h>
 
 #include <realtime_urdf_filter/urdf_renderer.h>
 
@@ -61,8 +62,9 @@ namespace realtime_urdf_filter
   void
     URDFRenderer::initURDFModel ()
   {
-    urdf::Model model;
-    if (!model.initString(model_description_))
+    boost::shared_ptr<urdf::ModelInterface> model;
+    model = urdf::parseURDF(model_description_);
+    if (!model)
     {
       ROS_ERROR ("URDF failed Model parse");
       return;
@@ -77,11 +79,11 @@ namespace realtime_urdf_filter
   /// /////////////////////////////////////////////////////////////////////////////
   /// @brief load URDF model description from string and create search operations data structures
   void URDFRenderer::loadURDFModel
-    (urdf::Model &model)
+    (boost::shared_ptr<urdf::ModelInterface> &model)
   {
     typedef std::vector<boost::shared_ptr<urdf::Link> > V_Link;
     V_Link links;
-    model.getLinks(links);
+    model->getLinks(links);
 
     V_Link::iterator it = links.begin();
     V_Link::iterator end = links.end();

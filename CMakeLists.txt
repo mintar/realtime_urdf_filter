@@ -25,24 +25,30 @@ else()
   set(ASSIMP_INCLUDE_DIRS)
 endif()
 
+find_package(urdfdom REQUIRED)
+find_package(urdfdom_headers REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   nodelet
-  urdf
   tf
   resource_retriever
   cv_bridge
   image_transport)
 
 catkin_package(
-#  DEPEND
-  # CATKIN_DEPENDS
-  INCLUDE_DIRS include
-  # LIBRARIES urdf_filter shadowwrapper
+  CATKIN_DEPENDS roscpp nodelet tf resource_retriever cv_bridge image_transport
+  INCLUDE_DIRS include ${ASSIMP_INCLUDE_DIRS} 
+  LIBRARIES urdf_filter shadowwrapper FBO realtime_urdf_filter_nodelet
+  DEPENDS urdfdom_headers urdfdom
   )
 
-include_directories(${catkin_INCLUDE_DIR} include)
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${urdfdom_INCLUDE_DIRS}
+  ${urdfdom_headers_INCLUDE_DIRS}
+  )
 include_directories(SYSTEM ${ASSIMP_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS} ${ASSIMP_LIBRARY_DIRS})
 
@@ -79,7 +85,8 @@ target_link_libraries (urdf_filter
   ${catkin_LIBRARIES}
   FBO
   shaderwrapper
-  ${ASSIMP_LIBRARIES})
+  ${ASSIMP_LIBRARIES}
+  ${urdfdom_LIBRARIES})
 
 add_executable (urdf_filtered_tracker src/urdf_filtered_tracker.cpp)
 target_link_libraries (urdf_filtered_tracker urdf_filter OpenNI ${catkin_LIBRARIES})

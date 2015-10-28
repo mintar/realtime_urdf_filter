@@ -31,7 +31,7 @@
 #ifndef REALTIME_URDF_FILTER_URDF_RENDERER_H_
 #define REALTIME_URDF_FILTER_URDF_RENDERER_H_
 
-#include <urdf/model.h>
+#include <urdf_model/model.h>
 #include <tf/transform_listener.h>
 #include <realtime_urdf_filter/renderable.h>
 
@@ -49,7 +49,7 @@ class URDFRenderer
 
   protected:
     void initURDFModel ();
-    void loadURDFModel (urdf::Model &descr);
+    void loadURDFModel (boost::shared_ptr<urdf::ModelInterface> &descr);
     void process_link (boost::shared_ptr<urdf::Link> link);
     void update_link_transforms ();
 
