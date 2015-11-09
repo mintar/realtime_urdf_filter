@@ -39,6 +39,9 @@
 
 #include <realtime_urdf_filter/urdf_renderer.h>
 
+#include <eigen_conversions/eigen_msg.h>
+
+
 namespace realtime_urdf_filter
 {
   URDFRenderer::URDFRenderer (std::string model_description, 
@@ -90,6 +93,22 @@ namespace realtime_urdf_filter
       process_link (*it);
   }
 
+  static std::string poseString(const Eigen::Affine3d& pose, const std::string& pfx = "")
+  {
+    std::ostringstream ss;
+    ss.precision(3);
+    for (int y=0;y<4;y++)
+    {
+      ss << pfx << std::fixed;
+      for (int x=0;x<4;x++)
+      {
+        ss << std::setw(8) << pose(y,x) << " ";
+      }
+      ss << std::endl;
+    }
+    return ss.str();
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   /** \brief Processes a single URDF link, creates renderable for it */
   void URDFRenderer::process_link (boost::shared_ptr<urdf::Link> link)
@@ -127,6 +146,15 @@ namespace realtime_urdf_filter
     r->link_offset = tf::Transform (
         tf::Quaternion (rotation.x, rotation.y, rotation.z, rotation.w).normalize (),
         tf::Vector3 (origin.x, origin.y, origin.z));
+
+    geometry_msgs::Pose pose_msg;
+    tf::poseTFToMsg(r->link_offset, pose_msg);
+    Eigen::Affine3d aff;
+    tf::poseMsgToEigen(pose_msg, aff);
+    ROS_INFO("setting link_offset (%s) to: \n%s",
+             link->name.c_str(),
+             poseString(aff).c_str());
+
     if (link->visual && 
         (link->visual->material))
       r->color  = link->visual->material->color;
@@ -151,6 +179,14 @@ namespace realtime_urdf_filter
         ROS_ERROR("%s",ex.what());
       }
       (*it)->link_to_fixed = tf::Transform (t.getRotation (), t.getOrigin ());
+
+      geometry_msgs::Pose pose_msg;
+      tf::poseTFToMsg((*it)->link_to_fixed, pose_msg);
+      Eigen::Affine3d aff;
+      tf::poseMsgToEigen(pose_msg, aff);
+      ROS_INFO("setting link_to_fixed (%s => %s) to: \n%s",
+               fixed_frame_.c_str(), (*it)->name.c_str(),
+               poseString(aff).c_str());
     }
   }
 

@@ -25,6 +25,8 @@ else()
   set(ASSIMP_INCLUDE_DIRS)
 endif()
 
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -33,7 +35,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   resource_retriever
   cv_bridge
-  image_transport)
+  image_transport
+  eigen_conversions)
 
 catkin_package(
 #  DEPEND
@@ -44,6 +47,7 @@ catkin_package(
 
 include_directories(${catkin_INCLUDE_DIR} include)
 include_directories(SYSTEM ${ASSIMP_INCLUDE_DIRS})
+include_directories(${Eigen_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS} ${ASSIMP_LIBRARY_DIRS})
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
@@ -79,7 +83,8 @@ target_link_libraries (urdf_filter
   ${catkin_LIBRARIES}
   FBO
   shaderwrapper
-  ${ASSIMP_LIBRARIES})
+  ${ASSIMP_LIBRARIES}
+  ${Eigen_LIBRARIES})
 
 add_executable (urdf_filtered_tracker src/urdf_filtered_tracker.cpp)
 target_link_libraries (urdf_filtered_tracker urdf_filter OpenNI ${catkin_LIBRARIES})

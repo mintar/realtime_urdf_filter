@@ -37,6 +37,8 @@
 #include <bullet/LinearMath/btMatrix3x3.h>
 // #define USE_OWN_CALIBRATION
 
+#include <eigen_conversions/eigen_msg.h>
+
 using namespace realtime_urdf_filter;
 
 // constructor. sets up ros and reads in parameters
@@ -470,6 +472,22 @@ void RealtimeURDFFilter::getProjectionMatrix (
   glTf[11]= -1;
 }
 
+static std::string poseString(const Eigen::Affine3d& pose, const std::string& pfx = "")
+{
+  std::ostringstream ss;
+  ss.precision(3);
+  for (int y=0;y<4;y++)
+  {
+    ss << pfx << std::fixed;
+    for (int x=0;x<4;x++)
+    {
+      ss << std::setw(8) << pose(y,x) << " ";
+    }
+    ss << std::endl;
+  }
+  return ss.str();
+}
+
 void RealtimeURDFFilter::render (const double* camera_projection_matrix)
 {   
   static const GLenum buffers[] = {
@@ -502,6 +520,14 @@ void RealtimeURDFFilter::render (const double* camera_projection_matrix)
     ROS_ERROR("%s",ex.what());
     return;
   }
+
+  geometry_msgs::Pose pose_msg;
+  tf::poseTFToMsg(camera_transform, pose_msg);
+  Eigen::Affine3d aff;
+  tf::poseMsgToEigen(pose_msg, aff);
+  ROS_INFO("setting camera_transform (%s => %s) to: \n%s",
+           cam_frame_.c_str(), fixed_frame_.c_str(),
+           poseString(aff).c_str());
 
   err = glGetError();
   if(err != GL_NO_ERROR) {
